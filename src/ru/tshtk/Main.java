@@ -1,17 +1,19 @@
 package ru.tshtk;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Main {
+    private final static Random random = new Random();
+    private final static int RESPONDENTS_COUNT = 10; // can be set from 2 to 10
+    private final static String[] NAMES = {"Oleg", "Igor", "Pasha", "Svetlana", "Olga", "Petya", "Yaroslav", "Dasha", "Sergey", "Armen"};
+
+
     public static void main(String[] args) {
 
-        //Add person name here
-        String[] names = {"Oleg", "Igor", "Pasha", "Sveta", "Olya"};
+        List<Person> users = getUsers(NAMES, RESPONDENTS_COUNT);
 
-        List<Person> users = getUsers(names);
+        System.out.println("Users count: " + users.size());
+        System.out.println("Users: " + users + "\n");
 
         ArrayList<Pair> pairs = getPairs(users);
         System.out.println("Pairs count: " + pairs.size());
@@ -28,19 +30,26 @@ public class Main {
         System.out.println("Results: " + results);
     }
 
-    private static List<Person> getUsers(String[] names) {
-        return Arrays.stream(names).map(Person::new).toList();
+    private static List<Person> getUsers(String[] names, int count) {
+        return Arrays.stream(names).limit(count).map(Person::new).toList();
     }
-
 
     private static ArrayList<Pair> getPairs(List<Person> users) {
         ArrayList<Pair> pairs = new ArrayList<>();
+        Pair pair;
         for (int i = 0; i < users.size() ; i++) {
             for (int j = i+1; j < users.size() ; j++) {
-                Pair pair = new Pair(users.get(i), users.get(j));
+
+                if (random.nextInt(2) == 0) {
+                    pair = new Pair(users.get(i), users.get(j));
+                }
+                else {
+                    pair = new Pair(users.get(j), users.get(i));
+                }
                 pairs.add(pair);
             }
         }
+        Collections.shuffle(pairs);
         return pairs;
     }
 
@@ -48,18 +57,18 @@ public class Main {
         ArrayList<Grade> grades = new ArrayList<>();
         Person chosen;
         Person ignored;
-        Random random = new Random();
         for (Person user: users) {
             for (Pair pair: pairs) {
                 if (user.equals(pair.getPerson1()) || user.equals(pair.getPerson2())) {
                     continue;
                 }
-                chosen = pair.getPerson1();
-                ignored = pair.getPerson2();
-                int i = random.nextInt(2);
-                if (i == 0) {
+                if (random.nextInt(2) == 0) {
                     chosen = pair.getPerson2();
                     ignored = pair.getPerson1();
+                }
+                else {
+                    chosen = pair.getPerson1();
+                    ignored = pair.getPerson2();
                 }
                 Grade grade = new Grade(user, chosen, ignored);
                 grades.add(grade);
